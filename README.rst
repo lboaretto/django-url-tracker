@@ -126,5 +126,5 @@ Create a new branch for your feature::
 push the finished feature to github and open a pull request form the branch.
 
 If you make a change to models.py that requires a database migration,
-use `python manage.py schemamigration url_tracker --auto` to create a south
-migration.
+use ``django-mini.py -p --app url_tracker --app south schemamigration
+url_tracker --auto`` to create a south migration.
