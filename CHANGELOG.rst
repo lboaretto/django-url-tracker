@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.1.4
+-----
+
+* Changed URL record fields from ``CharField`` to ``TextField``
+* Improved admin interface
+
 0.1.3
 -----
 
