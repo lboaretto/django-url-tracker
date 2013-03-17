@@ -4,3 +4,5 @@ mock==1.0b1
 wsgiref==0.1.2
 tox==1.4.2
 django-mini==0.4
+spec==0.10.0
+django-nose==1.1

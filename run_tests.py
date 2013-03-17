@@ -8,13 +8,13 @@ from argparse import ArgumentParser
 from coverage import coverage
 
 import tests.config
-from django.test.simple import DjangoTestSuiteRunner
+from django_nose import NoseTestSuiteRunner
 
 
 def run_tests(verbosity, *test_args):
     if not test_args:
         test_args = ['url_tracker']
-    test_runner = DjangoTestSuiteRunner(verbosity=verbosity)
+    test_runner = NoseTestSuiteRunner(verbosity=verbosity)
     num_failures = test_runner.run_tests(test_args)
     if num_failures:
         sys.exit(num_failures)
@@ -38,4 +38,5 @@ if __name__ == '__main__':
         c.html_report()
     else:
         print 'Running tests'
+        args += ['--with-specplugin', '-s', '-x']
         run_tests(options.verbosity, *args)
