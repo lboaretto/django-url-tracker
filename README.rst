@@ -100,9 +100,16 @@ the model::
 
 And now the missing link to actually start tracking URL changes is adding
 the following command to the bottom of the class definition, or the file
-for that matter::
+for that matter, after adding the mixin to the class. To change which
+functions are called to tracks urls, add a ``url_tracking_methods`` 
+attribute to the clast, which is a list of method names to track. By
+default the the list contains ``get_absolute_url``::
 
     import url_tracker
+
+    class Project(url_tracker.URLTrackingMixin, models.Model):
+        ...
+
     url_tracker.track_url_changes_for_model(Project)
 
 You are done. If you go to the admin interface, create a new project
