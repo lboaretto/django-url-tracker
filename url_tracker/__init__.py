@@ -60,18 +60,14 @@ def _create_delete_record(url):
     """
     # updated existing records with the old URL being the new_url
     # of this record. Changed the *deleted* flag to be ``False``
-    url_records = URLChangeRecord.objects.filter(new_url=url)
-    for record in url_records:
-        record.new_url = ''
-        record.deleted = True
-        record.save()
+    url_records = URLChangeRecord.objects.filter(new_url=url).update(
+        new_url='',
+        deleted=True
+    )
 
-    try:
-        url_change = URLChangeRecord.objects.get(old_url=url)
-        url_change.deleted = True
-        url_change.save()
-    except URLChangeRecord.DoesNotExist:
-        URLChangeRecord.objects.create(old_url=url, deleted=True)
+    record, created = URLChangeRecord.objects.get_or_create(old_url=url)
+    record.deleted = True
+    record.save()
 
 
 def track_changed_url(instance, **kwargs):
@@ -109,37 +105,24 @@ def track_changed_url(instance, **kwargs):
 
         # check if the new URL is already in the table and
         # remove these entries
-        for record in URLChangeRecord.objects.filter(old_url=new_url):
-            record.delete()
+        URLChangeRecord.objects.filter(old_url=new_url).delete()
 
         # updated existing records with the old URL being
         # the new URL in the record
-        url_records = URLChangeRecord.objects.filter(new_url=old_url)
-        for record in url_records:
-            record.new_url = new_url
-            record.deleted = False
-            record.save()
+        url_records = URLChangeRecord.objects.filter(new_url=old_url).update(
+            new_url=new_url,
+            deleted=False
+        )
 
         # create a new/updated record for this combination of old and
         # new URL. If the record already exists, it is assumed that the
         # current change is to be used and the existing new_url will be
         # detached from the old_url.
-        try:
-            logger.info(
-                "a record for '%s' already exists and will be updated",
-                old_url,
-            )
-            record = URLChangeRecord.objects.get(old_url=old_url)
-            record.new_url = new_url
-            record.deleted = False
-            record.save()
-        except URLChangeRecord.DoesNotExist:
-            URLChangeRecord.objects.create(
-                old_url=old_url,
-                new_url=new_url,
-                deleted=False
-            )
 
+        record, created = URLChangeRecord.objects.get_or_create(old_url=old_url)
+        record.new_url = new_url
+        record.deleted = False
+        record.save()
 
 def track_deleted_url(instance, **kwargs):
     """
