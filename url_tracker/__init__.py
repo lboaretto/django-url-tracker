@@ -3,6 +3,8 @@ import warnings
 
 from django.db.models import signals
 from django.core.exceptions import ImproperlyConfigured
+from django.core.urlresolvers import NoReverseMatch
+
 
 from .models import URLChangeRecord
 from .mixins import URLTrackingMixin
@@ -28,26 +30,23 @@ def lookup_previous_url(instance, **kwargs):
     the ``_old_urls`` dictionary is set to ``{}`` which will prevent a record
     to be created.
     """
-    try:
-        db_instance = instance.__class__.objects.get(pk=instance.pk)
-        logger.debug("saving old URL for instance '%s' URL",
-                     instance.__class__.__name__)
-    except instance.__class__.DoesNotExist:
-        logger.debug("new instance, no URL tracking required")
-        instance._old_urls = {}
-        return
-
+    instance._old_urls = {}
     for method_name in instance.get_url_tracking_methods():
         try:
-            method = getattr(db_instance, method_name)
+            method = getattr(instance, method_name)
         except AttributeError:
             raise ImproperlyConfigured(
                 "model instance '%s' does not have a method '%s'" % (
-                    db_instance.__class__.__name__,
+                    instance.__class__.__name__,
                     method_name
                 )
             )
-        instance._old_urls[method_name] = method()
+        try:
+            old_url = method()
+        except NoReverseMatch:
+            logger.debug("Method's url doesn't resolve")
+            old_url = None
+        instance._old_urls[method_name] = old_url
 
 
 def _create_delete_record(url):
@@ -89,17 +88,17 @@ def track_changed_url(instance, **kwargs):
     for method_name, old_url in getattr(instance, '_old_urls', {}).items():
         try:
             new_url = getattr(instance, method_name)()
-        except AttributeError:
-            continue
+        except NoReverseMatch:
+            new_url = None
 
         # if the new URL is None we assume that it has been deleted and
         # create a delete record for the old URL.
-        if new_url is None:
+        if not new_url:
             _create_delete_record(old_url)
             continue
 
         # we don't want to store URL changes for unchanged URL
-        if old_url is None or old_url == new_url:
+        if not old_url or (old_url == new_url):
             continue
 
         logger.debug(
