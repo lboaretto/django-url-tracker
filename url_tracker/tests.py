@@ -51,12 +51,6 @@ class TestTracking(TestCase):
             instance,
         )
 
-    def test__lookup_url_with_new_instance(self):
-        url_tracker.track_url_changes_for_model(TrackedModelMock)
-        url_tracker.lookup_previous_url(self.tracked_model)
-
-        self.assertEquals(self.tracked_model._old_urls, {})
-
     def test_lookup_url_with_existing_instance(self):
         def return_instance(pk):
             return self.tracked_db_model
