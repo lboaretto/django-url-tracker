@@ -60,12 +60,12 @@ def _create_delete_record(url):
     """
     # updated existing records with the old URL being the new_url
     # of this record. Changed the *deleted* flag to be ``False``
-    url_records = URLChangeRecord.objects.filter(new_url=url).update(
+    URLChangeRecord.objects.filter(new_url=url).update(
         new_url='',
         deleted=True
     )
 
-    record, created = URLChangeRecord.objects.get_or_create(old_url=url)
+    record, __ = URLChangeRecord.objects.get_or_create(old_url=url)
     record.deleted = True
     record.save()
 
@@ -119,7 +119,7 @@ def track_changed_url(instance, **kwargs):
         # current change is to be used and the existing new_url will be
         # detached from the old_url.
 
-        record, created = URLChangeRecord.objects.get_or_create(old_url=old_url)
+        record, __ = URLChangeRecord.objects.get_or_create(old_url=old_url)
         record.new_url = new_url
         record.deleted = False
         record.save()
