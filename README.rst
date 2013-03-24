@@ -4,6 +4,9 @@ django-url-tracker
 .. image:: https://travis-ci.org/elbaschid/django-url-tracker.png
     :target: https://travis-ci.org/elbaschid/django-url-tracker
 
+.. image:: https://coveralls.io/repos/elbaschid/django-url-tracker/badge.png?branch=master
+    :target: https://coveralls.io/r/elbaschid/django-url-tracker
+
 The ``django-url-tracker`` is meant to be a easy-to-use addition to
 a website to enhance its SEO. This might seem slightly pointless
 as `Cool URIs don't change
@@ -132,6 +135,10 @@ To contribute code in any form, fork the `github repository:
 Create a new branch for your feature::
 
     git commit -b feature/whatever-you-like
+
+Then make sure all the tests past (and write new ones for any new features)::
+
+    make tests
 
 push the finished feature to github and open a pull request form the branch.
 

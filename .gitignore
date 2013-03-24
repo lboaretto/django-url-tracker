@@ -3,6 +3,10 @@
 *.pot
 *.py[co]
 
-htmlcov/
+.coverage
+.coveralls.yml
+
 dist/
+htmlcov/
+coverage/
 django_url_tracker.egg-info/

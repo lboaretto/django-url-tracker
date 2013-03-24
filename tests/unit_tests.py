@@ -9,9 +9,8 @@ from mock import Mock
 from django.test import TestCase
 
 import url_tracker
-
-from .models import URLChangeRecord
-from .mixins import URLTrackingMixin
+from url_tracker.models import URLChangeRecord
+from url_tracker.mixins import URLTrackingMixin
 
 
 class TrackedModelMock(URLTrackingMixin, Mock):
@@ -185,40 +184,3 @@ class TestTracking(TestCase):
         self.assertEquals(record.old_url, u'/the/old/one/')
         self.assertEquals(record.new_url, u'/the/new/one/')
         self.assertEquals(record.deleted, False)
-
-
-class TestUrlRecord(TestCase):
-
-    def test_invalid_url(self):
-        response = self.client.get('/work/an-invalid-project/')
-        self.assertEquals(response.status_code, 404)
-
-    def test_changed_url(self):
-        URLChangeRecord.objects.create(
-            old_url='/the/old-url/',
-            new_url='/the/new/url/',
-        )
-
-        response = self.client.get('/the/old-url/')
-        self.assertEquals(response.status_code, 301)
-        self.assertEquals(response['location'], 'http://testserver/the/new/url/')
-
-    def test_deleted_url(self):
-        URLChangeRecord.objects.create(
-            old_url='/the/old-url/',
-            new_url='',
-            deleted=True
-        )
-
-        response = self.client.get('/the/old-url/')
-        self.assertEquals(response.status_code, 410)
-
-    def test_redirecting_from_a_url_with_get_parameters(self):
-        old_url = '/the/old-url/afile.php?q=test&another=45'
-        URLChangeRecord.objects.create(
-            old_url=old_url,
-            new_url='/the/new/url/',
-        )
-
-        response = self.client.get(old_url)
-        self.assertEquals(response.status_code, 301)
