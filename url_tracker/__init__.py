@@ -5,7 +5,6 @@ from django.db.models import signals
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import NoReverseMatch
 
-
 from .models import URLChangeRecord
 from .mixins import URLTrackingMixin
 
@@ -22,7 +21,7 @@ class URLTrackingError(Exception):
 def lookup_previous_url(instance, **kwargs):
     """
     Look up the absolute URL of *instance* from the database while it is
-    in a ``pre_save`` state. The previous urls are saved in the instance's
+    in a ``pre_save`` state. The previous URLs are saved in the instance's
     *_old_urls* attribute as dictionary. The method name for the given URLs
     are used as the dictionary keys.
 
@@ -44,7 +43,7 @@ def lookup_previous_url(instance, **kwargs):
         try:
             old_url = method()
         except NoReverseMatch:
-            logger.debug("Method's url doesn't resolve")
+            logger.debug("Method's URL doesn't resolve")
             old_url = None
         instance._old_urls[method_name] = old_url
 
