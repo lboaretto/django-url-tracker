@@ -8,9 +8,11 @@ env:
   - DJANGO_VERSION="1.5"
 # command to install dependencies
 install:
-  - pip install Django==$DJANGO_VERSION --use-mirrors
-  - python setup.py develop
-  - pip install -r requirements.txt --use-mirrors
+    # NOTE: easy_install *will* downgrade if setup.py specifies a max version
+    # # This leads to seemingly passing tests
+  - easy_install Django==$DJANGO_VERSION
 # command to run tests
 script:
-  - ./run_tests.py
+  - make travis
+after_script:
+  - coveralls
