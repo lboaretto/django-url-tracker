@@ -86,14 +86,14 @@ def track_changed_url(instance, **kwargs):
         except NoReverseMatch:
             new_url = None
 
+        # we don't want to store URL changes for unchanged URL
+        if not old_url or (old_url == new_url):
+            continue
+
         # if the new URL is None we assume that it has been deleted and
         # create a delete record for the old URL.
         if not new_url:
             _create_delete_record(old_url)
-            continue
-
-        # we don't want to store URL changes for unchanged URL
-        if not old_url or (old_url == new_url):
             continue
 
         logger.debug(
