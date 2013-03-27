@@ -8,7 +8,8 @@ from mock import Mock
 
 from django.test import TestCase
 
-import url_tracker
+from url_tracker import URLTrackingError
+from url_tracker import trackers
 from url_tracker.models import URLChangeRecord
 from url_tracker.mixins import URLTrackingMixin
 
@@ -41,12 +42,12 @@ class TestTracking(TestCase):
         self.tracked_db_model = self.model_mock(name='TrackeDatabaseModel')
         self.tracked_db_model._get_tracked_url = lambda: u'/the/old/one/'
 
-    def test_tracking_model_without_url_method(self):
+    def test_trackers_model_without_url_method(self):
         instance = TrackedModelMock()
         instance.url_tracking_methods = []
         self.assertRaises(
-            url_tracker.URLTrackingError,
-            url_tracker.track_url_changes_for_model,
+            URLTrackingError,
+            trackers.track_url_changes_for_model,
             instance,
         )
 
@@ -59,8 +60,8 @@ class TestTracking(TestCase):
         self.tracked_model.__class__.objects = class_objects
         self.tracked_model.get_absolute_url.return_value = u'/the/old/one/'
 
-        url_tracker.track_url_changes_for_model(TrackedModelMock)
-        url_tracker.lookup_previous_url(self.tracked_model)
+        trackers.track_url_changes_for_model(TrackedModelMock)
+        trackers.lookup_previous_url(self.tracked_model)
 
         expected_dict = {'get_absolute_url': u'/the/old/one/'}
         self.assertEquals(self.tracked_model._old_urls, expected_dict)
@@ -70,7 +71,7 @@ class TestTracking(TestCase):
         instance.get_absolute_url.return_value = None
         instance._old_urls = {'get_absolute_url': u'/the/old/one/'}
 
-        url_tracker.track_changed_url(instance)
+        trackers.track_changed_url(instance)
         self.assertEquals(URLChangeRecord.objects.count(), 1)
         record = URLChangeRecord.objects.all()[0]
         self.assertEquals(record.deleted, True)
@@ -80,7 +81,7 @@ class TestTracking(TestCase):
         instance.get_absolute_url.return_value = u'/the/new/one/'
         instance._old_urls = {'get_absolute_url': None}
 
-        url_tracker.track_changed_url(instance)
+        trackers.track_changed_url(instance)
         self.assertEquals(URLChangeRecord.objects.count(), 0)
 
     def test_track_changed_url_with_unchanged_url(self):
@@ -88,7 +89,7 @@ class TestTracking(TestCase):
         instance.get_absolute_url.return_value = u'/the/old/one/'
         instance._old_urls = {'get_absolute_url': u'/the/old/one/'}
 
-        url_tracker.track_changed_url(instance)
+        trackers.track_changed_url(instance)
         self.assertEquals(URLChangeRecord.objects.count(), 0)
 
     def test_track_changed_url_without_existing_records(self):
@@ -96,7 +97,7 @@ class TestTracking(TestCase):
         instance.get_absolute_url.return_value = u'/the/new/one/'
         instance._old_urls = {'get_absolute_url': u'/the/old/one/'}
 
-        url_tracker.track_changed_url(instance)
+        trackers.track_changed_url(instance)
         self.assertEquals(URLChangeRecord.objects.count(), 1)
         record = URLChangeRecord.objects.all()[0]
         self.assertEquals(record.new_url, u'/the/new/one/')
@@ -111,7 +112,7 @@ class TestTracking(TestCase):
         instance.get_absolute_url.return_value = u'/the/new/one/'
         instance._old_urls = {'get_absolute_url': u'/the/old/one/'}
 
-        url_tracker.track_changed_url(instance)
+        trackers.track_changed_url(instance)
         self.assertEquals(URLChangeRecord.objects.count(), 3)
         record = URLChangeRecord.objects.get(pk=1)
         self.assertEquals(record.old_url, u'/the/oldest/one/')
@@ -130,7 +131,7 @@ class TestTracking(TestCase):
         instance.get_absolute_url.return_value = u'/the/new/one/'
         instance._old_urls = {'get_absolute_url': u'/the/old/one/'}
 
-        url_tracker.track_changed_url(instance)
+        trackers.track_changed_url(instance)
         self.assertEquals(URLChangeRecord.objects.count(), 2)
         record = URLChangeRecord.objects.get(pk=1)
         self.assertEquals(record.old_url, u'/the/oldest/one/')
@@ -151,7 +152,7 @@ class TestTracking(TestCase):
         instance.get_absolute_url.return_value = u'/the/new/one/'
         instance._old_urls = {'get_absolute_url': u'/the/old/one/'}
 
-        url_tracker.track_changed_url(instance)
+        trackers.track_changed_url(instance)
 
         record = URLChangeRecord.objects.get(pk=3)
         self.assertEquals(record.old_url, u'/the/old/one/')
@@ -163,7 +164,7 @@ class TestTracking(TestCase):
         instance.get_absolute_url.return_value = u'/the/new/one/'
         instance._old_urls = {'get_absolute_url': u'/the/old/one/'}
 
-        url_tracker.track_deleted_url(instance)
+        trackers.track_deleted_url(instance)
 
         self.assertEquals(URLChangeRecord.objects.count(), 1)
         record = URLChangeRecord.objects.all()[0]
@@ -178,7 +179,7 @@ class TestTracking(TestCase):
         instance.get_absolute_url.return_value = u'/the/new/one/'
         instance._old_urls = {'get_absolute_url': '/the/old/one/'}
 
-        url_tracker.track_changed_url(instance)
+        trackers.track_changed_url(instance)
         self.assertEquals(URLChangeRecord.objects.count(), 1)
         record = URLChangeRecord.objects.get(pk=1)
         self.assertEquals(record.old_url, u'/the/old/one/')
