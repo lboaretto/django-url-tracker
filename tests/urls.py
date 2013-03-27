@@ -1,9 +1,5 @@
 from django.conf.urls.defaults import patterns, url
-from django.views.generic import TemplateView
 
-
-def dummy_404_view(*args, **kwargs):
-    return
 
 urlpatterns = patterns(
     '',
@@ -12,6 +8,4 @@ urlpatterns = patterns(
         TemplateView.as_view(template_name="_.html"),
         name="project"
     ),
-    handler404 = 'test.urls.dummy_404_view'
-
 )
