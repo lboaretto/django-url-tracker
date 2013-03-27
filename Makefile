@@ -1,6 +1,6 @@
 install:
 	python setup.py develop
-	pip install -r requirements.txt --use-mirrors
+	pip install -r requirements.txt --use-mirrors --quiet
 
 tests: install
 	python run_tests.py --with-specplugin
