@@ -15,4 +15,5 @@ settings.configure(
             'url_tracker.middleware.URLChangePermanentRedirectMiddleware',
         ),
         ROOT_URLCONF='tests.urls',
+        DEBUG=False,
     )
