@@ -10,7 +10,7 @@ env:
 install:
     # NOTE: easy_install *will* downgrade if setup.py specifies a max version
     # # This leads to seemingly passing tests
-  - pip install -e . -re requirements.txt django==$DJANGO_VERSION -q --use-mirrors
+  - pip install -e . -r requirements.txt django==$DJANGO_VERSION -q --use-mirrors
 # command to run tests
 script:
   - make travis
