@@ -1,5 +1,12 @@
-from django.conf.urls.defaults import patterns
+from django.conf.urls.defaults import patterns, url
+from django.views.generic import TemplateView
 
-# this is only in here so that Django is not complaining about
-# missing URLs
-urlpatterns = patterns('')
+
+urlpatterns = patterns(
+    '',
+    url(
+        r'^(?P<slug>\w+)/$',
+        TemplateView.as_view(template_name="_.html"),
+        name="project"
+    ),
+)
