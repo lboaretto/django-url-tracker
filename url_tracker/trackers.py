@@ -7,15 +7,10 @@ from django.core.urlresolvers import NoReverseMatch
 
 from .models import URLChangeRecord
 from .mixins import URLTrackingMixin
+from .exceptions import URLTrackingError
+
 
 logger = logging.getLogger(__file__)
-
-
-class URLTrackingError(Exception):
-    """
-    Exception raised when an error occures during URL tracking.
-    """
-    pass
 
 
 def lookup_previous_url(instance, **kwargs):
