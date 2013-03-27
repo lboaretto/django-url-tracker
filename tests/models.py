@@ -1,6 +1,7 @@
 import url_tracker
 
 from django.core.urlresolvers import reverse
+from django.db import models
 
 
 class Project(url_tracker.URLTrackingMixin, models.Model):
@@ -14,7 +15,7 @@ class Project(url_tracker.URLTrackingMixin, models.Model):
         return ('project', (), {'slug', self.slug})
 
     def return_slug_or_none(self):
-        return slug if slug
+        return slug or None
 
 
 url_tracker.track_url_changes_for_model(Project)

@@ -10,6 +10,7 @@ settings.configure(
         },
         INSTALLED_APPS=[
             'url_tracker',
+            'tests'
         ],
         MIDDLEWARE_CLASSES=global_settings.MIDDLEWARE_CLASSES + (
             'url_tracker.middleware.URLChangePermanentRedirectMiddleware',
