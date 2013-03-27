@@ -1,11 +1,10 @@
 install:
-	python setup.py develop
-	pip install -r requirements.txt --use-mirrors --quiet
+	pip install -e . -r requirements.txt
 
-tests: install
+tests:
 	python run_tests.py --with-specplugin
 
-coverage: install
+coverage:
 	python run_tests.py --with-coverage --cover-package=url_tracker \
 	 		    --with-specplugin --no-spec-color \
 			    --cover-html --cover-html-dir=coverage
