@@ -10,10 +10,12 @@ settings.configure(
     },
     INSTALLED_APPS=[
         'url_tracker',
-        'tests'
+        'tests',
+        'django.contrib.contenttypes',
     ],
     MIDDLEWARE_CLASSES=global_settings.MIDDLEWARE_CLASSES + (
         'url_tracker.middleware.URLChangePermanentRedirectMiddleware',
     ),
     ROOT_URLCONF='tests.urls',
+    DEBUG=True,
 )

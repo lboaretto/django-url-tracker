@@ -1,40 +1,78 @@
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
+from django.test.utils import override_settings
 
-from url_tracker.models import URLChangeRecord
+from url_tracker.models import OldURL, URLChangeMethod
+from url_tracker.middleware import URLChangePermanentRedirectMiddleware
+from .models import TestModel
 
 
-class TestUrlRecord(TestCase):
+@override_settings(APPEND_SLASH=False)
+class RedirectTests(TestCase):
 
-    def test_returns_404_for_invalid_url(self):
-        response = self.client.get('/work/an-invalid-project/')
-        self.assertEquals(response.status_code, 404)
+    def setUp(self):
+        self.TestModel = TestModel.objects.create()
+        self.OldUrl = OldURL.objects.create(
+            url='/initial',
+        )
+        self.URLChangeMethod = URLChangeMethod.objects.create(
+            content_object=self.TestModel,
+            method_name='get_absolute_url_using_reverse',
+            current_url='/new_target',
+        )
+        self.URLChangeMethod.old_urls.add(self.OldUrl)
 
-    def test_returns_301_for_a_changed_url(self):
-        URLChangeRecord.objects.create(
-            old_url='/the/old-url/',
-            new_url='/the/new/url/',
+    def test_redirect(self):
+        response = self.client.get('/initial')
+        self.assertRedirects(
+            response,
+            '/new_target',
+            status_code=301,
+            target_status_code=404
         )
 
-        response = self.client.get('/the/old-url/')
-        self.assertEquals(response.status_code, 301)
-        self.assertEquals(response['location'], 'http://testserver/the/new/url/')
+    @override_settings(APPEND_SLASH=True)
+    def test_redirect_with_append_slash(self):
+        self.OldUrl.url += '/'
+        self.URLChangeMethod.current_url += '/'
+        self.OldUrl.save()
+        self.URLChangeMethod.save()
 
-    def test_returns_410_for_a_deleted_url(self):
-        URLChangeRecord.objects.create(
-            old_url='/the/old-url/',
-            new_url='',
-            deleted=True
+        response = self.client.get('/initial')
+        self.assertRedirects(
+            response,
+            '/new_target/',
+            status_code=301,
+            target_status_code=404
         )
 
-        response = self.client.get('/the/old-url/')
-        self.assertEquals(response.status_code, 410)
+    @override_settings(APPEND_SLASH=True)
+    def test_redirect_with_append_slash_and_query_string(self):
+        self.OldUrl.url = '/initial/?foo'
+        self.URLChangeMethod.current_url += '/'
+        self.OldUrl.save()
+        self.URLChangeMethod.save()
 
-    def test_returns_301_for_a_changed_url_containing_querystring(self):
-        old_url = '/the/old-url/afile.php?q=test&another=45'
-        URLChangeRecord.objects.create(
-            old_url=old_url,
-            new_url='/the/new/url/',
+        response = self.client.get('/initial?foo')
+        self.assertRedirects(
+            response,
+            '/new_target/',
+            status_code=301,
+            target_status_code=404
         )
 
-        response = self.client.get(old_url)
-        self.assertEquals(response.status_code, 301)
+    def test_response_gone(self):
+        """When the redirect target is '', return a 410"""
+        self.URLChangeMethod.current_url = ''
+        self.URLChangeMethod.save()
+
+        response = self.client.get('/initial')
+        self.assertEqual(response.status_code, 410)
+
+    @override_settings(
+        INSTALLED_APPS=[app for app in settings.INSTALLED_APPS
+                        if app != 'url_tracker'])
+    def test_sites_not_installed(self):
+        with self.assertRaises(ImproperlyConfigured):
+            URLChangePermanentRedirectMiddleware()

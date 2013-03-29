@@ -1,31 +1,42 @@
-from django import http
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django import http
 
-from url_tracker.models import URLChangeRecord
+from url_tracker.models import OldURL
 
 
 class URLChangePermanentRedirectMiddleware(object):
+    def __init__(self):
+        if 'url_tracker' not in settings.INSTALLED_APPS:
+            raise ImproperlyConfigured(
+                "You cannot use URLChangePermanentRedirectMiddleware when "
+                "url_tracker is not installed."
+            )
 
     def process_response(self, request, response):
         if response.status_code != 404:
-            return response # No need to check for non-404 responses.
+            return response  # No need to check for a redirect for non-404 responses.
+
+        full_path = request.get_full_path()
+
+        old_url = None
         try:
-            requested_url = request.path_info
-            query_string = request.META['QUERY_STRING']
-
-            if query_string:
-                requested_url = "%s?%s" % (requested_url, query_string)
-
-            redirect_url = URLChangeRecord.objects.get(old_url__exact=requested_url)
-            if redirect_url.deleted:
+            old_url = OldURL.objects.get(url__exact=full_path)
+        except OldURL.DoesNotExist:
+            pass
+        if settings.APPEND_SLASH and not request.path.endswith('/'):
+            # Try appending a trailing slash.
+            path_len = len(request.path)
+            full_path = full_path[:path_len] + '/' + full_path[path_len:]
+            try:
+                old_url = OldURL.objects.get(url__exact=full_path)
+            except OldURL.DoesNotExist:
+                pass
+        if old_url:
+            new_url = old_url.get_new_url()
+            if not new_url:
                 return http.HttpResponseGone()
-            else:
-                return http.HttpResponsePermanentRedirect(redirect_url.new_url)
-        # Return the original response if any errors happened. Because this
-        # is a middleware, we can't assume the errors will be caught elsewhere.
-        except (http.Http404, URLChangeRecord.DoesNotExist):
-            return response
-        except:
-            if settings.DEBUG:
-                raise
-            return response
+            return http.HttpResponsePermanentRedirect(new_url)
+
+        # No redirect was found. Return the response.
+        return response

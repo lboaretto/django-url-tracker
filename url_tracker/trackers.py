@@ -4,10 +4,10 @@ import warnings
 from django.db.models import signals
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import NoReverseMatch
+from django.contrib.contenttypes.models import ContentType
 
-from .models import URLChangeRecord
+from .models import URLChangeMethod, OldURL
 from .mixins import URLTrackingMixin
-from .exceptions import URLTrackingError
 
 
 logger = logging.getLogger(__file__)
@@ -15,121 +15,71 @@ logger = logging.getLogger(__file__)
 
 def lookup_previous_url(instance, **kwargs):
     """
-    Look up the absolute URL of *instance* from the database while it is
-    in a ``pre_save`` state. The previous URLs are saved in the instance's
-    *_old_urls* attribute as dictionary. The method name for the given URLs
-    are used as the dictionary keys.
-
-    If the instance has not been saved to the database (i.e. is new)
-    the ``_old_urls`` dictionary is set to ``{}`` which will prevent a record
-    to be created.
+    Gets the previous urls for the model. It will save them too a
+    URLChangeMethod object, as OldURLs. If the url method won't resolve
+    then the url is treated as if it doesn't exist. Also it won't create
+    a URLChangeMethod if the old_url doesn't exist or is equal to the current
+    url of that model
     """
-    instance._old_urls = {}
     for method_name in instance.get_url_tracking_methods():
+
+        # If the method raises a NoReverseMathc, we assume that the URL
+        # is blank and treat it as such
         try:
-            method = getattr(instance, method_name)
-        except AttributeError:
-            raise ImproperlyConfigured(
-                "model instance '%s' does not have a method '%s'" % (
-                    instance.__class__.__name__,
-                    method_name
-                )
-            )
-        try:
-            old_url = method()
+            old_url = getattr(instance, method_name)()
         except NoReverseMatch:
-            logger.debug("Method's URL doesn't resolve")
             old_url = None
-        instance._old_urls[method_name] = old_url
 
+        # Don't need to save any record for a object that has no old_url
+        if not old_url:
+            continue
 
-def _create_delete_record(url):
-    """
-    Create a delete record for the given *url*. This updates all records
-    where *url* is the ``new_url`` (previous redirects). It also creates
-    a new record with *url* being the ``old_url`` and no ``new_url`` and
-    marked as deleted. This marks an endpoint in the chain of URL
-    redirects.
-    """
-    # updated existing records with the old URL being the new_url
-    # of this record. Changed the *deleted* flag to be ``False``
-    URLChangeRecord.objects.filter(new_url=url).update(
-        new_url='',
-        deleted=True
-    )
-
-    record, __ = URLChangeRecord.objects.get_or_create(old_url=url)
-    record.deleted = True
-    record.save()
+        # If the instance is new then don't create a url change
+        if not instance.pk:
+            continue
+        content_type = ContentType.objects.get_for_model(instance.__class__)
+        url_method, created = URLChangeMethod.objects.get_or_create(
+            content_type=content_type,
+            object_id=instance.pk,
+            method_name=method_name
+        )
+        old_url, __ = OldURL.objects.get_or_create(url=old_url)
+        url_method.old_urls.add(old_url)
+        url_method.save()
 
 
 def track_changed_url(instance, **kwargs):
     """
-    Track a URL changes for *instance* after a new instance was saved. If
-    no old URLs are available (i.e. *instance* is new) or if a new and old URL
-    are the same (i.e. URL is unchanged), nothing will be changed in the
-    database for this URL.
+    Saves the current_url for an instance.
 
-    For URLs that have changed, the database will be checked for existing
-    records that have a *new_url* entry equal to the old URL of *instance* and
-    updates these records. Then, a new ``URLChangeRecord`` is created for this
-    URL.
+    If that instance has not URLChangeMethod, then it will not create one.
     """
-    for method_name, old_url in getattr(instance, '_old_urls', {}).items():
+    for method_name in instance.get_url_tracking_methods():
+        content_type = ContentType.objects.get_for_model(instance.__class__)
         try:
-            new_url = getattr(instance, method_name)()
+            url_method = URLChangeMethod.objects.get(
+                content_type=content_type,
+                object_id=instance.pk,
+                method_name=method_name
+            )
+        except URLChangeMethod.DoesNotExist:
+            continue
+        try:
+            current_url = getattr(instance, method_name)()
         except NoReverseMatch:
-            new_url = None
-
-        # we don't want to store URL changes for unchanged URL
-        if not old_url or (old_url == new_url):
-            continue
-
-        # if the new URL is None we assume that it has been deleted and
-        # create a delete record for the old URL.
-        if not new_url:
-            _create_delete_record(old_url)
-            continue
+            current_url = None
 
         logger.debug(
             "tracking URL change for instance '%s' URL",
             instance.__class__.__name__
         )
 
-        # check if the new URL is already in the table and
-        # remove these entries
-        URLChangeRecord.objects.filter(old_url=new_url).delete()
-
-        # updated existing records with the old URL being
-        # the new URL in the record
-        url_records = URLChangeRecord.objects.filter(new_url=old_url).update(
-            new_url=new_url,
-            deleted=False
-        )
-
-        # create a new/updated record for this combination of old and
-        # new URL. If the record already exists, it is assumed that the
-        # current change is to be used and the existing new_url will be
-        # detached from the old_url.
-
-        record, __ = URLChangeRecord.objects.get_or_create(old_url=old_url)
-        record.new_url = new_url
-        record.deleted = False
-        record.save()
-
-def track_deleted_url(instance, **kwargs):
-    """
-    Track the URL of a deleted *instance*. It updates all existing
-    records with ``new_url`` being set to the *instance*'s old URL and
-    marks this record as deleted URL.
-
-    A new ``URLChangeRecord`` is created for the old URL of *instance*
-    that is marked as deleted.
-    """
-    logger.debug("tracking deleted instance '%s' URL",
-                 instance.__class__.__name__)
-    for old_url in getattr(instance, '_old_urls', {}).values():
-        _create_delete_record(old_url)
+        url_method.current_url = current_url
+        url_method.old_urls.filter(url=current_url).delete()
+        if not url_method.old_urls.exists():
+            url_method.delete()
+            continue
+        url_method.save()
 
 
 def track_url_changes_for_model(model, absolute_url_method='get_absolute_url'):
@@ -139,7 +89,7 @@ def track_url_changes_for_model(model, absolute_url_method='get_absolute_url'):
     method to return a list of methods to retrieve trackable URLs.
     The default setup provides ``url_tracking_methods = ['get_absolute_url']``.
 
-    The ``pre_save``, ``post_save`` and ``post_delete`` methods are connected
+    The ``pre_save`` and ``post_save`` methods are connected
     to different tracking methods for *model* and create/update
     ``URLChangeRecord``s as required.
     """
@@ -153,9 +103,17 @@ def track_url_changes_for_model(model, absolute_url_method='get_absolute_url'):
         model.get_url_tracking_methods = URLTrackingMixin.get_url_tracking_methods
 
     # make sure that URL method names are specified for the given model
-    if not getattr(model, 'url_tracking_methods', None):
-        raise URLTrackingError("no URLs specified for model '%s'" % model)
+    if not hasattr(model, 'url_tracking_methods'):
+        raise ImproperlyConfigured("no URLs specified for model '%s'" % model)
+
+    for method_name in model.get_url_tracking_methods():
+        if not hasattr(model, method_name):
+            raise ImproperlyConfigured(
+                "model instance '%s' does not have a method '%s'" % (
+                    model.__name__,
+                    method_name
+                )
+            )
 
     signals.pre_save.connect(lookup_previous_url, sender=model, weak=False)
     signals.post_save.connect(track_changed_url, sender=model, weak=False)
-    signals.post_delete.connect(track_deleted_url, sender=model, weak=False)
