@@ -2,10 +2,10 @@ from django.test import TransactionTestCase
 
 from url_tracker.models import OldURL, URLChangeMethod
 
-from .models import TestModel
+from .models import TestModel, RemoveSignals
 
 
-class TestOldUrlGetNewUrl(TransactionTestCase):
+class TestOldUrlGetNewUrl(TransactionTestCase, RemoveSignals):
     def setUp(self):
         instance = TestModel.objects.create()
         self.url_method_blank = URLChangeMethod.objects.create(

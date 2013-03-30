@@ -1,24 +1,38 @@
 from django.test import TransactionTestCase
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import signals
 
 from url_tracker.trackers import lookup_previous_url, track_changed_url, track_url_changes_for_model
 from url_tracker.models import URLChangeMethod
 
-from .models import TestModel, reverse_model
+from .models import TestModel, reverse_model, RemoveSignals
 
 
-class TestTrackUrlForModel(TransactionTestCase):
+class TestTrackUrlForModel(RemoveSignals, TransactionTestCase):
+
+    def setUp(self):
+        self.function_from_signals = lambda signal: map(lambda _: _[1], signal.receivers)
 
     def test_model_without_url_method(self):
-        URLChangeMethod.url_tracking_methods = []
+        TestModel.url_tracking_methods = []
         self.assertRaises(
             ImproperlyConfigured,
             track_url_changes_for_model,
-            URLChangeMethod,
+            TestModel,
         )
 
+    def test_adds_pre_save_signal(self):
+        self.assertFalse(self.function_from_signals(signals.pre_save))
+        track_url_changes_for_model(TestModel)
+        self.assertIn(lookup_previous_url, self.function_from_signals(signals.pre_save))
 
-class TestLookupUrl(TransactionTestCase):
+    def test_adds_post_save_signal(self):
+        self.assertFalse(self.function_from_signals(signals.pre_save))
+        track_url_changes_for_model(TestModel)
+        self.assertIn(track_changed_url, self.function_from_signals(signals.post_save))
+
+
+class TestLookupUrl(RemoveSignals, TransactionTestCase):
 
     def test_new_instance_dont_create(self):
         unsaved_instance = TestModel(slug='initial')
@@ -52,7 +66,7 @@ class TestLookupUrl(TransactionTestCase):
         self.assertEqual(old_url.url, reverse_model('initial'))
 
 
-class TestChangedUrl(TransactionTestCase):
+class TestChangedUrl(RemoveSignals, TransactionTestCase):
     def test_no_url_change_method(self):
         instance = TestModel.objects.create()
         track_changed_url(instance)

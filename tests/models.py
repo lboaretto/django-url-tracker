@@ -2,6 +2,7 @@ import url_tracker
 
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models import signals
 
 
 def reverse_model(slug):
@@ -22,3 +23,11 @@ class TestModel(url_tracker.URLTrackingMixin, models.Model):
         'get_absolute_url',
         'get_text'
     ]
+
+
+class RemoveSignals(object):
+    def tearDown(self):
+        def remove_reciever_from_signal(signal):
+            signal.receivers = []
+        remove_reciever_from_signal(signals.post_save)
+        remove_reciever_from_signal(signals.pre_save)

@@ -8,11 +8,11 @@ except ImportError:
 
 from url_tracker.models import OldURL, URLChangeMethod
 from url_tracker.middleware import URLChangePermanentRedirectMiddleware
-from .models import TestModel
+from .models import TestModel, RemoveSignals
 
 
 @override_settings(APPEND_SLASH=False)
-class RedirectTests(TestCase):
+class RedirectTests(TestCase, RemoveSignals):
 
     def setUp(self):
         self.TestModel = TestModel.objects.create()

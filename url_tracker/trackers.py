@@ -20,9 +20,17 @@ def lookup_previous_url(instance, **kwargs):
     then the url is treated as if it doesn't exist. Also it won't create
     a URLChangeMethod if the old_url doesn't exist or is equal to the current
     url of that model
+
+    When this method is called `instance` represents the presaved version of the instance.
+    So to get the old URL, we get the object from the database, to get its current state
     """
     for method_name in instance.get_url_tracking_methods():
 
+        # If the instance is new then don't create a url change
+        if not instance.pk:
+            continue
+
+        instance = instance.__class__.objects.get(pk=instance.pk)
         # If the method raises a NoReverseMathc, we assume that the URL
         # is blank and treat it as such
         try:
@@ -34,9 +42,6 @@ def lookup_previous_url(instance, **kwargs):
         if not old_url:
             continue
 
-        # If the instance is new then don't create a url change
-        if not instance.pk:
-            continue
         content_type = ContentType.objects.get_for_model(instance.__class__)
         url_method, created = URLChangeMethod.objects.get_or_create(
             content_type=content_type,
@@ -103,7 +108,7 @@ def track_url_changes_for_model(model, absolute_url_method='get_absolute_url'):
         model.get_url_tracking_methods = URLTrackingMixin.get_url_tracking_methods
 
     # make sure that URL method names are specified for the given model
-    if not hasattr(model, 'url_tracking_methods'):
+    if not getattr(model, 'url_tracking_methods', None):
         raise ImproperlyConfigured("no URLs specified for model '%s'" % model)
 
     for method_name in model.get_url_tracking_methods():
