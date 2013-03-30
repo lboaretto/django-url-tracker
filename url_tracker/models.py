@@ -21,7 +21,7 @@ class URLChangeMethod(models.Model):
     )
 
     def __unicode__(self):
-        return u'{}.{}, with current url {}'.format(
+        return u'{0}.{1}, with current url {2}'.format(
             self.content_object,
             self.method_name,
             self.current_url
@@ -39,8 +39,8 @@ class OldURL(models.Model):
         new_url = all_new_urls[0]
         if len(all_new_urls) > 1:
             logger.warning(
-                ('the url {} has multiple new_urls associated with it'
-                 '{} was chosen out of {}').format(
+                ('the url {0} has multiple new_urls associated with it'
+                 '{1} was chosen out of {2}').format(
                      self,
                      new_url,
                      all_new_urls
