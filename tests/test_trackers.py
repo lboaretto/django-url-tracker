@@ -1,20 +1,13 @@
 from django.test import TransactionTestCase
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
 
-from url_tracker.trackers import (lookup_previous_url, track_changed_url,
-                                  track_url_changes_for_model)
+from url_tracker.trackers import lookup_previous_url, track_changed_url, track_url_changes_for_model
 from url_tracker.models import URLChangeMethod
 
-from .models import TestModel
+from .models import TestModel, reverse_model
 
 
-class TestTrackMixin(TransactionTestCase):
-    def setUp(self):
-        self.reverse = lambda slug: reverse('test-url', args=(slug,))
-
-
-class TestTrackUrlForModel(TestTrackMixin):
+class TestTrackUrlForModel(TransactionTestCase):
 
     def test_model_without_url_method(self):
         URLChangeMethod.url_tracking_methods = []
@@ -25,7 +18,7 @@ class TestTrackUrlForModel(TestTrackMixin):
         )
 
 
-class TestLookupUrl(TestTrackMixin):
+class TestLookupUrl(TransactionTestCase):
 
     def test_new_instance_dont_create(self):
         unsaved_instance = TestModel(slug='initial')
@@ -56,10 +49,10 @@ class TestLookupUrl(TestTrackMixin):
 
         self.assertEqual(url_method.old_urls.count(), 1)
         old_url = url_method.old_urls.all()[0]
-        self.assertEqual(old_url.url, self.reverse('initial'))
+        self.assertEqual(old_url.url, reverse_model('initial'))
 
 
-class TestChangedUrl(TestTrackMixin):
+class TestChangedUrl(TransactionTestCase):
     def test_no_url_change_method(self):
         instance = TestModel.objects.create()
         track_changed_url(instance)
@@ -78,8 +71,8 @@ class TestChangedUrl(TestTrackMixin):
             content_object=instance,
             method_name='get_absolute_url',
         )
-        url_method.old_urls.create(url=self.reverse('initial'))
-        url_method.old_urls.create(url=self.reverse('another'))
+        url_method.old_urls.create(url=reverse_model('initial'))
+        url_method.old_urls.create(url=reverse_model('another'))
 
         track_changed_url(instance)
         self.assertEqual(url_method.old_urls.count(), 1)
@@ -90,11 +83,11 @@ class TestChangedUrl(TestTrackMixin):
             content_object=instance,
             method_name='get_absolute_url',
         )
-        url_method.old_urls.create(url=self.reverse('another'))
+        url_method.old_urls.create(url=reverse_model('another'))
         track_changed_url(instance)
         self.assertEqual(URLChangeMethod.objects.count(), 1)
         url_method = URLChangeMethod.objects.all()[0]
-        self.assertEqual(url_method.current_url, self.reverse('current'))
+        self.assertEqual(url_method.current_url, reverse_model('current'))
 
     def test_same_url_dont_create(self):
         instance = TestModel.objects.create(slug='initial')
@@ -102,6 +95,6 @@ class TestChangedUrl(TestTrackMixin):
             content_object=instance,
             method_name='get_absolute_url',
         )
-        url_method.old_urls.create(url=self.reverse('initial'))
+        url_method.old_urls.create(url=reverse_model('initial'))
         track_changed_url(instance)
         self.assertEqual(URLChangeMethod.objects.count(), 0)

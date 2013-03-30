@@ -35,12 +35,8 @@ class OldURL(models.Model):
         return u'{}'.format(self.url)
 
     def get_new_url(self):
-        all_new_urls = set(
-            self.model_method
-            .exclude(current_url__isnull=True, current_url__exact='')
-            .values_list('current_url', flat=True)
-        )
-        new_url = all_new_urls.pop()
+        all_new_urls = self.model_method.order_by('-current_url').values_list('current_url', flat=True)
+        new_url = all_new_urls[0]
         if len(all_new_urls) > 1:
             logger.warning(
                 ('the url {} has multiple new_urls associated with it'

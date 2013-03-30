@@ -4,12 +4,16 @@ from django.core.urlresolvers import reverse
 from django.db import models
 
 
+def reverse_model(slug):
+        return reverse('model-detail', kwargs={'slug': slug})
+
+
 class TestModel(url_tracker.URLTrackingMixin, models.Model):
     slug = models.SlugField(max_length=20, null=True, blank=True)
     text = models.TextField(max_length=20, null=True, blank=True)
 
     def get_absolute_url(self):
-        return reverse('test-url', args=(self.slug,))
+        return reverse_model(self.slug)
 
     def get_text(self):
         return self.text
