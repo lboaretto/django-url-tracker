@@ -32,7 +32,7 @@ class OldURL(models.Model):
     url = models.TextField(unique=True)
 
     def __unicode__(self):
-        return u'{}'.format(self.url)
+        return u'{0}'.format(self.url)
 
     def get_new_url(self):
         all_new_urls = self.model_method.order_by('-current_url').values_list('current_url', flat=True)
