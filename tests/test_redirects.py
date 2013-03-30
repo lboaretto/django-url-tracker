@@ -1,7 +1,10 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
-from django.test.utils import override_settings
+try:
+    from django.test.utils import override_settings
+except ImportError:
+    from override_settings import override_settings
 
 from url_tracker.models import OldURL, URLChangeMethod
 from url_tracker.middleware import URLChangePermanentRedirectMiddleware
