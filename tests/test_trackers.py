@@ -39,12 +39,6 @@ class TestLookupUrl(RemoveSignals, TransactionTestCase):
         lookup_previous_url(unsaved_instance)
         self.assertFalse(URLChangeMethod.objects.count())
 
-    def test_url_no_reverse_dont_create(self):
-        instance = TestModel.objects.create(slug='//')
-        lookup_previous_url(instance)
-
-        self.assertFalse(URLChangeMethod.objects.count())
-
     def test_url_blank_dont_create(self):
         instance = TestModel.objects.create(text='')
         lookup_previous_url(instance)

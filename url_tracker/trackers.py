@@ -27,16 +27,12 @@ def lookup_previous_url(instance, **kwargs):
     for method_name in instance.get_url_tracking_methods():
 
         # If the instance is new then don't create a url change
-        if not instance.pk:
+        try:
+            instance = instance.__class__.objects.get(pk=instance.pk)
+        except instance.__class__.DoesNotExist:
             continue
 
-        instance = instance.__class__.objects.get(pk=instance.pk)
-        # If the method raises a NoReverseMathc, we assume that the URL
-        # is blank and treat it as such
-        try:
-            old_url = getattr(instance, method_name)()
-        except NoReverseMatch:
-            old_url = None
+        old_url = getattr(instance, method_name)()
 
         # Don't need to save any record for a object that has no old_url
         if not old_url:
@@ -69,10 +65,7 @@ def track_changed_url(instance, **kwargs):
             )
         except URLChangeMethod.DoesNotExist:
             continue
-        try:
-            current_url = getattr(instance, method_name)()
-        except NoReverseMatch:
-            current_url = None
+        current_url = getattr(instance, method_name)()
 
         logger.debug(
             "tracking URL change for instance '%s' URL",
