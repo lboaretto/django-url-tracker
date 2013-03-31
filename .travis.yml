@@ -9,6 +9,6 @@ env:
 install:
   - pip install -e . -r requirements.txt django$DJANGO_VERSION --use-mirrors
 script:
-  - ../run_tests.py
+  - ./run_tests.py
 after_script:
   - coveralls
