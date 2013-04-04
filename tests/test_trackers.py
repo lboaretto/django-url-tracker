@@ -2,7 +2,7 @@ from django.test import TransactionTestCase
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import signals
 
-from url_tracker.trackers import lookup_previous_url, track_changed_url, track_url_changes_for_model
+from url_tracker.trackers import lookup_previous_url, track_changed_url, track_url_changes_for_model, add_old_url
 from url_tracker.models import URLChangeMethod
 
 from .models import TestModel, reverse_model, RemoveSignals
@@ -106,3 +106,15 @@ class TestChangedUrl(RemoveSignals, TransactionTestCase):
         url_method.old_urls.create(url=reverse_model('initial'))
         track_changed_url(instance)
         self.assertEqual(URLChangeMethod.objects.count(), 0)
+
+
+class TestAddOldUrl(RemoveSignals, TransactionTestCase):
+    def test_without_previous_tracking(self):
+        instance = TestModel.objects.create(slug='initial')
+        add_old_url(instance, 'get_absolute_url', 'old_url')
+        self.assertEqual(URLChangeMethod.objects.count(), 1)
+        url_method = URLChangeMethod.objects.all()[0]
+        self.assertEqual(url_method.method_name, 'get_absolute_url')
+        self.assertEqual(url_method.old_urls.count(), 1)
+        old_url = url_method.old_urls.all()[0]
+        self.assertEqual(old_url.url, 'old_url')

@@ -33,20 +33,26 @@ def lookup_previous_url(instance, **kwargs):
             continue
 
         old_url = getattr(instance, method_name)()
-
-        # Don't need to save any record for a object that has no old_url
         if not old_url:
-            continue
+            return
+        add_old_url(instance, method_name, old_url)
 
-        content_type = ContentType.objects.get_for_model(instance.__class__)
-        url_method, created = URLChangeMethod.objects.get_or_create(
-            content_type=content_type,
-            object_id=instance.pk,
-            method_name=method_name
-        )
-        old_url, __ = OldURL.objects.get_or_create(url=old_url)
-        url_method.old_urls.add(old_url)
-        url_method.save()
+
+def add_old_url(instance, method_name, old_url):
+    '''
+    Saves an old_url for a method and an instance.
+
+    It will create a OldUrl object for that url and add it to the url_method for that instance.
+    '''
+    content_type = ContentType.objects.get_for_model(instance.__class__)
+    url_method, created = URLChangeMethod.objects.get_or_create(
+        content_type=content_type,
+        object_id=instance.pk,
+        method_name=method_name
+    )
+    old_url, __ = OldURL.objects.get_or_create(url=old_url)
+    url_method.old_urls.add(old_url)
+    url_method.save()
 
 
 def track_changed_url(instance, **kwargs):

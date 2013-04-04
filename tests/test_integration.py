@@ -6,7 +6,7 @@ from url_tracker.models import URLChangeMethod
 from .models import TestModel, reverse_model, RemoveSignals
 
 
-class TestFullStack(TransactionTestCase, RemoveSignals):
+class TestFullStack(RemoveSignals, TransactionTestCase):
     def setUp(self):
         track_url_changes_for_model(TestModel)
         self.instance = TestModel.objects.create(slug='initial')
