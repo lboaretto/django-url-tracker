@@ -9,7 +9,7 @@ class URLChangeMethodAdmin(admin.ModelAdmin):
 
 
 class OldURLAdmin(admin.ModelAdmin):
-    list_display = ('url')
+    list_display = ('url',)
 
 
 admin.site.register(URLChangeMethod, URLChangeMethodAdmin)
