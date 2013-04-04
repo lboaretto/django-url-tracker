@@ -3,11 +3,10 @@ import warnings
 
 from django.db.models import signals
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import NoReverseMatch
 from django.contrib.contenttypes.models import ContentType
 
-from .models import URLChangeMethod, OldURL
-from .mixins import URLTrackingMixin
+from url_tracker.models import URLChangeMethod, OldURL
+from url_tracker.mixins import URLTrackingMixin
 
 
 logger = logging.getLogger(__file__)
