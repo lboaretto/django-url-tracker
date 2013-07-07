@@ -13,10 +13,7 @@ class URLChangePermanentRedirectMiddleware(object):
                 "url_tracker is not installed."
             )
 
-    def process_response(self, request, response):
-        if response.status_code != 404:
-            return response  # No need to check for a redirect for non-404 responses.
-
+    def process_request(self, request):
         full_path = request.get_full_path()
 
         old_url = None
@@ -37,6 +34,3 @@ class URLChangePermanentRedirectMiddleware(object):
             if not new_url:
                 return http.HttpResponseGone()
             return http.HttpResponsePermanentRedirect(new_url)
-
-        # No redirect was found. Return the response.
-        return response
