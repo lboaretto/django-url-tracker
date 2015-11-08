@@ -22,7 +22,7 @@ setup(
     packages = find_packages(exclude=["docs*", "tests*"]),
     include_package_data = True,
     install_requires=[
-        'django>=1.3.1,<1.6',
+        'django>=1.3.1,<1.9',
         'South>=0.7.3',
     ],
     classifiers=[

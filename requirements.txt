@@ -1,4 +1,4 @@
-django-mini==0.4.2
+django-mini==0.5.1
 spec==0.10.0
 django-nose==1.1 # this must come after `spec` so that the `spec` version of `nose` takes precedence
 coveralls==0.1.1
