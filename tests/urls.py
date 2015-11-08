@@ -1,5 +1,9 @@
-from django.conf.urls.defaults import patterns, url
+try:  # added in django 1.6
+    from django.conf.urls import patterns, url
+except ImportError:
+    from django.conf.urls.defaults import patterns, url
 from django.views.generic import DetailView
+
 
 from .models import TestModel
 

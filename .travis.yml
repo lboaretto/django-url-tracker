@@ -14,6 +14,8 @@ script:
 after_script:
   - coveralls
 env:
+  global:
+    - DJANGO_SETTINGS_MODULE=tests.settings
   matrix:
     - DJANGO_VERSION=">=1.3,<1.4, django-override-settings"
     - DJANGO_VERSION=">=1.4,<1.5"
@@ -22,8 +24,6 @@ env:
     - DJANGO_VERSION=">=1.7,<1.8"
     - DJANGO_VERSION=">=1.8,<1.9"
 matrix:
-  global:
-    - DJANGO_SETTINGS_MODULE=tests.settings
   exclude:
     - python: "2.6"
       env: DJANGO_VERSION=">=1.6,<1.7"
