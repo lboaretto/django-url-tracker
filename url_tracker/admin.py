@@ -1,10 +1,16 @@
 from django.contrib import admin
 
-from url_tracker.models import URLChangeRecord
+from url_tracker.models import URLChangeMethod, OldURL
 
 
-class URLChangeRecordAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'deleted', 'date_changed')
-    list_filter = ('deleted', 'date_changed')
+class URLChangeMethodAdmin(admin.ModelAdmin):
+    list_display = ('content_object', 'method_name', 'current_url')
+    list_filter = ('content_type', 'method_name')
 
-admin.site.register(URLChangeRecord, URLChangeRecordAdmin)
+
+class OldURLAdmin(admin.ModelAdmin):
+    list_display = ('url',)
+
+
+admin.site.register(URLChangeMethod, URLChangeMethodAdmin)
+admin.site.register(OldURL, OldURLAdmin)

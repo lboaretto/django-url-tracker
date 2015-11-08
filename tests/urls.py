@@ -1,5 +1,16 @@
-from django.conf.urls.defaults import patterns
+from django.conf.urls.defaults import patterns, url
+from django.views.generic import DetailView
 
-# this is only in here so that Django is not complaining about
-# missing URLs
-urlpatterns = patterns('')
+from .models import TestModel
+
+urlpatterns = patterns(
+    '',
+    url(
+        r'^testmodel/(?P<slug>\w+)/$',
+        DetailView.as_view(
+            model=TestModel,
+            template_name='_.html'
+        ),
+        name="model-detail"
+    ),
+)
