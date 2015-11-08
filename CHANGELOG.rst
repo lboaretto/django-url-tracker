@@ -2,6 +2,8 @@
 Changelog
 =========
 
+* Use Docker for development
+
 0.1.4
 -----
 

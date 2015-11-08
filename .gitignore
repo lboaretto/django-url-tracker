@@ -9,4 +9,4 @@
 dist/
 htmlcov/
 coverage/
-django_url_tracker.egg-info/
+*.egg-info/

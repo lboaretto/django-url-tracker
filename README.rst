@@ -139,7 +139,7 @@ Create a new branch for your feature::
 
 Then make sure all the tests past (and write new ones for any new features)::
 
-    ./run_tests.py
+    docker-compose run --rm tests
 
 push the finished feature to github and open a pull request form the branch.
 
