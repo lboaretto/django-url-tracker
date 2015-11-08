@@ -11,7 +11,7 @@ from .models import TestModel, reverse_model, RemoveSignals
 class TestTrackUrlForModel(RemoveSignals, TransactionTestCase):
 
     def setUp(self):
-        self.function_from_signals = lambda signal: map(lambda _: _[1], signal.receivers)
+        self.function_from_signals = lambda signal: list(map(lambda _: _[1], signal.receivers))
 
     def test_model_without_url_method(self):
         TestModel.url_tracking_methods = []
