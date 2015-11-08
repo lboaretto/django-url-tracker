@@ -1,10 +1,10 @@
 django-url-tracker
 ==================
 
-.. image:: https://travis-ci.org/elbaschid/django-url-tracker.png
+.. image:: https://travis-ci.org/saulshanabrook/django-url-tracker.png
     :target: https://travis-ci.org/saulshanabrook/django-url-tracker
 
-.. image:: https://coveralls.io/repos/elbaschid/django-url-tracker/badge.png?branch=master
+.. image:: https://coveralls.io/repos/saulshanabrook/django-url-tracker/badge.png?branch=master
     :target: https://coveralls.io/r/saulshanabrook/django-url-tracker
 
 The ``django-url-tracker`` is meant to be a easy-to-use addition to
