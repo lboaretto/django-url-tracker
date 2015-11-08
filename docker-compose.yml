@@ -1,5 +1,7 @@
 tests:
   build: .
-  command: "python run_tests.py"
+  command: "django-admin.py test"
   volumes:
     - .:/usr/src/app
+  environment:
+    DJANGO_SETTINGS_MODULE: tests.settings

@@ -142,6 +142,3 @@ Then make sure all the tests past (and write new ones for any new features)::
     docker-compose run --rm tests
 
 push the finished feature to github and open a pull request form the branch.
-
-If you make a change to models.py that requires a database migration,
-use ``django-mini.py -p -a url_tracker -a south -a django.contrib.contenttypes schemamigration url_tracker --auto`` to create a south migration.
