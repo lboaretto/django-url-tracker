@@ -2,10 +2,10 @@ django-url-tracker
 ==================
 
 .. image:: https://travis-ci.org/elbaschid/django-url-tracker.png
-    :target: https://travis-ci.org/elbaschid/django-url-tracker
+    :target: https://travis-ci.org/saulshanabrook/django-url-tracker
 
 .. image:: https://coveralls.io/repos/elbaschid/django-url-tracker/badge.png?branch=master
-    :target: https://coveralls.io/r/elbaschid/django-url-tracker
+    :target: https://coveralls.io/r/saulshanabrook/django-url-tracker
 
 The ``django-url-tracker`` is meant to be a easy-to-use addition to
 a website to enhance its SEO. This might seem slightly pointless
@@ -38,7 +38,7 @@ Installation
 
 Installation is as easy as::
 
-    pip install django-url-tracker
+    pip install django-url-tracker-fork
 
 Done!
 
@@ -129,17 +129,17 @@ Contributing
 
 If you find issues or would like to see a feature suppored, head over to
 the `issues section:
-<https://github.com/tangentlabs/django-url-tracker/issues>`_ and report it.
+<https://github.com/saulshanabrook/django-url-tracker/issues>`_ and report it.
 
 To contribute code in any form, fork the `github repository:
-<https://github.com/tangentlabs/django-url-tracker>`_ and clone it locally.
+<https://github.com/saulshanabrook/django-url-tracker>`_ and clone it locally.
 Create a new branch for your feature::
 
     git commit -b feature/whatever-you-like
 
 Then make sure all the tests past (and write new ones for any new features)::
 
-    make tests
+    ./run_tests.py
 
 push the finished feature to github and open a pull request form the branch.
 

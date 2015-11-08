@@ -10,9 +10,9 @@ To release a new version to PyPi:
 from setuptools import setup, find_packages
 
 setup(
-    name = "django-url-tracker",
+    name = "django-url-tracker-fork",
     version = '0.1.4',
-    url = "https://github.com/tangentlabs/django-url-tracker",
+    url = "https://github.com/saulshanabrook/django-url-tracker",
     author = "Sebastian Vetter",
     author_email = "sebastian.vetter@tangentone.com.au",
     description = ("A little app that trackes URL changes in a database table "
