@@ -1,8 +1,12 @@
 from django.db import models
 import logging
 
-from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+try:  # new import added in Django 1.7
+    from django.contrib.contenttypes.fields import GenericForeignKey
+except ImportError:
+    from django.contrib.contenttypes import generic
+    GenericForeignKey = generic.GenericForeignKey
 
 
 logger = logging.getLogger(__file__)
@@ -11,7 +15,7 @@ logger = logging.getLogger(__file__)
 class URLChangeMethod(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.TextField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     method_name = models.TextField()
     current_url = models.TextField(blank=True)
@@ -19,6 +23,9 @@ class URLChangeMethod(models.Model):
         'OldURL',
         related_name='model_method'
     )
+
+    class Meta:
+        app_label = 'url_tracker'
 
     def __unicode__(self):
         return u'{0}.{1}, with current url {2}'.format(
@@ -30,6 +37,9 @@ class URLChangeMethod(models.Model):
 
 class OldURL(models.Model):
     url = models.TextField(unique=True)
+
+    class Meta:
+        app_label = 'url_tracker'
 
     def __unicode__(self):
         return u'{0}'.format(self.url)

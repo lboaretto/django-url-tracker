@@ -5,10 +5,6 @@ from django.db.models import signals
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
-from url_tracker.models import URLChangeMethod, OldURL
-from url_tracker.mixins import URLTrackingMixin
-
-
 logger = logging.getLogger(__file__)
 
 
@@ -43,6 +39,8 @@ def add_old_url(instance, method_name, old_url):
 
     It will create a OldUrl object for that url and add it to the url_method for that instance.
     '''
+    from url_tracker.models import URLChangeMethod, OldURL
+
     content_type = ContentType.objects.get_for_model(instance.__class__)
     url_method, created = URLChangeMethod.objects.get_or_create(
         content_type=content_type,
@@ -60,6 +58,8 @@ def track_changed_url(instance, **kwargs):
 
     If that instance has not URLChangeMethod, then it will not create one.
     """
+    from url_tracker.models import URLChangeMethod
+
     for method_name in instance.get_url_tracking_methods():
         content_type = ContentType.objects.get_for_model(instance.__class__)
         try:
@@ -97,6 +97,8 @@ def track_url_changes_for_model(model, absolute_url_method='get_absolute_url'):
     ``URLChangeRecord``s as required.
     """
     if not hasattr(model, 'get_url_tracking_methods'):
+        from url_tracker.mixins import URLTrackingMixin
+
         warnings.warn(
             "the 'absolute_url_method' is deprecated, use the "
             "'UrlTrackingMixin' instead",

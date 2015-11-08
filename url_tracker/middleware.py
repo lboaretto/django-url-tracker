@@ -2,8 +2,6 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django import http
 
-from url_tracker.models import OldURL
-
 
 class URLChangePermanentRedirectMiddleware(object):
     def __init__(self):
@@ -14,6 +12,8 @@ class URLChangePermanentRedirectMiddleware(object):
             )
 
     def process_request(self, request):
+        from url_tracker.models import OldURL
+
         full_path = request.get_full_path()
 
         old_url = None

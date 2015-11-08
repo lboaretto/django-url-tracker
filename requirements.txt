@@ -1,3 +1,1 @@
-spec==0.10.0
-django-nose==1.4.2 # this must come after `spec` so that the `spec` version of `nose` takes precedence
 coveralls==1.1
