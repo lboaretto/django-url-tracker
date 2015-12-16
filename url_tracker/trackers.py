@@ -3,7 +3,6 @@ import warnings
 
 from django.db.models import signals
 from django.core.exceptions import ImproperlyConfigured
-from django.contrib.contenttypes.models import ContentType
 
 logger = logging.getLogger(__file__)
 
@@ -40,6 +39,7 @@ def add_old_url(instance, method_name, old_url):
     It will create a OldUrl object for that url and add it to the url_method for that instance.
     '''
     from url_tracker.models import URLChangeMethod, OldURL
+    from django.contrib.contenttypes.models import ContentType
 
     content_type = ContentType.objects.get_for_model(instance.__class__)
     url_method, created = URLChangeMethod.objects.get_or_create(
@@ -59,6 +59,7 @@ def track_changed_url(instance, **kwargs):
     If that instance has not URLChangeMethod, then it will not create one.
     """
     from url_tracker.models import URLChangeMethod
+    from django.contrib.contenttypes.models import ContentType
 
     for method_name in instance.get_url_tracking_methods():
         content_type = ContentType.objects.get_for_model(instance.__class__)
