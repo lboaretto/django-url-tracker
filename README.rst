@@ -1,11 +1,15 @@
 django-url-tracker
 ==================
 
-.. image:: https://travis-ci.org/saulshanabrook/django-url-tracker.png
-    :target: https://travis-ci.org/saulshanabrook/django-url-tracker
+.. image:: https://img.shields.io/pypi/v/django-url-tracker-fork.svg?style=flat-square   :target: https://pypi.python.org/pypi/django-url-tracker-fork
 
-.. image:: https://coveralls.io/repos/saulshanabrook/django-url-tracker/badge.png?branch=master
-    :target: https://coveralls.io/r/saulshanabrook/django-url-tracker
+.. image:: https://img.shields.io/travis/saulshanabrook/django-url-tracker.svg?style=flat-square   :target: https://travis-ci.org/saulshanabrook/django-url-tracker/
+
+.. image:: https://img.shields.io/coveralls/saulshanabrook/django-url-tracker.svg?style=flat-square   :target: https://coveralls.io/r/saulshanabrook/django-url-tracker
+
+.. image:: https://landscape.io/github/saulshanabrook/django-url-tracker/master/landscape.svg?style=flat-square
+   :target: https://landscape.io/github/saulshanabrook/django-url-tracker/master
+   :alt: Code Health
 
 The ``django-url-tracker`` is meant to be a easy-to-use addition to
 a website to enhance its SEO. This might seem slightly pointless
