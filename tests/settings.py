@@ -21,4 +21,10 @@ MIDDLEWARE_CLASSES = (
     'url_tracker.middleware.URLChangePermanentRedirectMiddleware',
 )
 ROOT_URLCONF = 'tests.urls'
-DEBUG = True
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+    },
+]
