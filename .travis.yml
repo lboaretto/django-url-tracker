@@ -10,7 +10,7 @@ python:
 install:
   - pip install -e . -r requirements.txt django$DJANGO_VERSION
 script:
-  - django-admin.py test
+  - bash -c 'coverage run $(which django-admin.py) test'
 after_script:
   - coveralls
 env:

@@ -1,6 +1,6 @@
 tests:
   build: .
-  command: "django-admin.py test"
+  command: "coverage run /usr/local/bin/django-admin.py test"
   volumes:
     - .:/usr/src/app
   environment:
