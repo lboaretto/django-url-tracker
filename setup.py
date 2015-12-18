@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="django-url-tracker-fork",
-    version='0.1.5',
+    version='0.2.0',
     url="https://github.com/saulshanabrook/django-url-tracker",
     author="Sebastian Vetter",
     author_email="sebastian.vetter@tangentone.com.au",
