@@ -15,7 +15,7 @@ setup(
     packages = find_packages(exclude=["docs*", "tests*"]),
     include_package_data = True,
     install_requires=[
-        'django>=1.3.1,<1.9',
+        'django>=1.3.1,<1.10',
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
