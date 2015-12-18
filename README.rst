@@ -1,11 +1,14 @@
 django-url-tracker
 ==================
 
-.. image:: https://img.shields.io/pypi/v/django-url-tracker-fork.svg?style=flat-square   :target: https://pypi.python.org/pypi/django-url-tracker-fork
+.. image:: https://img.shields.io/pypi/v/django-url-tracker-fork.svg?style=flat-square
+         :target: https://pypi.python.org/pypi/django-url-tracker-fork
 
-.. image:: https://img.shields.io/travis/saulshanabrook/django-url-tracker.svg?style=flat-square   :target: https://travis-ci.org/saulshanabrook/django-url-tracker/
+.. image:: https://img.shields.io/travis/saulshanabrook/django-url-tracker.svg?style=flat-square
+         :target: https://travis-ci.org/saulshanabrook/django-url-tracker/
 
-.. image:: https://img.shields.io/coveralls/saulshanabrook/django-url-tracker.svg?style=flat-square   :target: https://coveralls.io/r/saulshanabrook/django-url-tracker
+.. image:: https://img.shields.io/coveralls/saulshanabrook/django-url-tracker.svg?style=flat-square
+         :target: https://coveralls.io/r/saulshanabrook/django-url-tracker
 
 .. image:: https://landscape.io/github/saulshanabrook/django-url-tracker/master/landscape.svg?style=flat-square
    :target: https://landscape.io/github/saulshanabrook/django-url-tracker/master
